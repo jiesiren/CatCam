@@ -25,6 +25,18 @@ add_library( # Sets the name of the library.
 # you want to add. CMake verifies that the library exists before
 # completing its build.
 
+
+# build native_app_glue as a static lib
+include_directories(${ANDROID_NDK}/sources/android/native_app_glue
+        ${COMMON_SOURCE_DIR})
+add_library(app_glue STATIC
+        ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
+
+# Export ANativeActivity_onCreate(),
+# Refer to: https://github.com/android-ndk/ndk/issues/381.
+set(CMAKE_SHARED_LINKER_FLAGS
+        "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+
 find_library( # Sets the name of the path variable.
               log-lib
 
@@ -36,9 +48,11 @@ find_library( # Sets the name of the path variable.
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
 
-target_link_libraries( # Specifies the target library.
-                       native-lib
+target_link_libraries(
+        native-lib
+        app_glue
+        android
 
-                       # Links the target library to the log library
-                       # included in the NDK.
-                       ${log-lib} )
+        # Links the target library to the log library
+        # included in the NDK.
+        ${log-lib} )
