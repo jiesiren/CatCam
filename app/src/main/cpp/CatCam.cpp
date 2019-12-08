@@ -40,8 +40,33 @@ CatCam* CatCam::getInstanceFromApp(struct android_app* app) {
 }
 
 void CatCam::onAppCmd(struct android_app* app, int32_t cmd) {
-    LOGI("onAppCmd %d", cmd);
+    LOGI("CatCam::onAppCmd %d", cmd);
     CatCam& catCam = *CatCam::getInstanceFromApp(app);
+
+    switch (cmd) {
+        case APP_CMD_INIT_WINDOW:
+            LOGI("CatCam::onAppCmd - APP_CMD_INIT_WINDOW");
+            catCam.requestPermissions();
+            break;
+        default:
+            break;
+    }
+}
+
+void CatCam::requestPermissions() {
+    LOGI("CatCam::requestPermissions");
+    JNIEnv* env;
+    ANativeActivity* activity = app_->activity;
+    activity->vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6);
+
+    activity->vm->AttachCurrentThread(&env, nullptr);
+
+    jobject activityObj = env->NewGlobalRef(activity->clazz);
+    jclass clz = env->GetObjectClass(activityObj);
+    env->CallVoidMethod(activityObj, env->GetMethodID(clz, "requestPermissions", "()V"));
+    env->DeleteGlobalRef(activityObj);
+
+    activity->vm->DetachCurrentThread();
 }
 
 extern "C" JNIEXPORT jstring JNICALL
