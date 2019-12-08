@@ -35,6 +35,19 @@ CatCam::CatCam(struct android_app* app) : app_(app) {
     app_->onAppCmd = CatCam::onAppCmd;
 }
 
+CatCam::~CatCam() {
+    deleteCamera();
+}
+
+void CatCam::initCamera() {
+    camera_ = new CatNdkCamera();
+}
+
+void CatCam::deleteCamera() {
+    delete camera_;
+    camera_ = nullptr;
+}
+
 CatCam* CatCam::getInstanceFromApp(struct android_app* app) {
     return reinterpret_cast<CatCam*>(app->userData);
 }
@@ -60,6 +73,7 @@ void CatCam::onAppCmd(struct android_app* app, int32_t cmd) {
 void CatCam::onAppInitWindow() {
     requestPermissions();
     showAppUi();
+    initCamera(); // TODO: will need to be moved/called-later for when permission req needed
 }
 
 void CatCam::onAppTermWindow() {

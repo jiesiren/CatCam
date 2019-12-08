@@ -2,11 +2,14 @@
 
 #include <android_native_app_glue.h>
 
+#include "CatNdkCamera.h"
+
 extern "C" void android_main(struct android_app* app);
 
 class CatCam {
 public:
     CatCam(struct android_app* app);
+    ~CatCam();
 
     CatCam(const CatCam&) = delete;
     CatCam& operator=(const CatCam&) = delete;
@@ -19,10 +22,14 @@ public:
     void onAppInitWindow();
     void onAppTermWindow();
 
+    void initCamera();
+    void deleteCamera();
+
     // JNI methods
     void showAppUi();
     void requestPermissions();
 
 private:
     struct android_app* app_;
+    CatNdkCamera* camera_;
 };
