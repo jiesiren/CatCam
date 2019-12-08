@@ -1,5 +1,7 @@
 #pragma once
 
+#include <camera/NDKCameraManager.h>
+
 class CatNdkCamera {
 public:
     CatNdkCamera();
@@ -7,4 +9,7 @@ public:
 
     CatNdkCamera(const CatNdkCamera&) = delete;
     CatNdkCamera& operator=(const CatNdkCamera&) = delete;
+
+private:
+    ACameraManager* cameraManager_;
 };

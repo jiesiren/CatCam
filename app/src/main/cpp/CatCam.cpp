@@ -41,11 +41,15 @@ CatCam::~CatCam() {
 
 void CatCam::initCamera() {
     camera_ = new CatNdkCamera();
+    reader_ = new CatImageReader(640, 480, AIMAGE_FORMAT_YUV_420_888);
 }
 
 void CatCam::deleteCamera() {
     delete camera_;
     camera_ = nullptr;
+
+    delete reader_;
+    reader_ = nullptr;
 }
 
 CatCam* CatCam::getInstanceFromApp(struct android_app* app) {

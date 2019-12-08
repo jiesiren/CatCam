@@ -3,6 +3,7 @@
 #include <android_native_app_glue.h>
 
 #include "CatNdkCamera.h"
+#include "CatImageReader.h"
 
 extern "C" void android_main(struct android_app* app);
 
@@ -32,4 +33,5 @@ public:
 private:
     struct android_app* app_;
     CatNdkCamera* camera_;
+    CatImageReader* reader_;
 };

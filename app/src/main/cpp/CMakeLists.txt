@@ -10,7 +10,10 @@ cmake_minimum_required(VERSION 3.4.1)
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
-add_library(CatCam SHARED CatCam.cpp CatNdkCamera.cpp)
+add_library(CatCam SHARED
+        CatCam.cpp
+        CatNdkCamera.cpp
+        CatImageReader.cpp)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -30,7 +33,10 @@ add_library(app_glue STATIC
 set(CMAKE_SHARED_LINKER_FLAGS
         "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
+find_library(android-lib android)
 find_library(log-lib log)
+find_library(camera-lib camera2ndk)
+find_library(media-lib mediandk)
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
@@ -39,8 +45,8 @@ find_library(log-lib log)
 target_link_libraries(
         CatCam
         app_glue
-        android
 
-        # Links the target library to the log library
-        # included in the NDK.
-        ${log-lib})
+        ${android-lib}
+        ${log-lib}
+        ${camera-lib}
+        ${media-lib})
