@@ -5,7 +5,14 @@ import android.app.NativeActivity;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.ImageButton;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -18,36 +25,34 @@ public final class MainActivity extends NativeActivity {
         System.loadLibrary("CatCam");
     }
 
-    private final String TAG = "CatCam.MainActivity";
+    private final String TAG = "[JAVA] MainActivity";
 
     private final int PERMISSION_REQUEST_CODE = 1;
+
+    private PopupWindow popupWindow;
+    private ImageButton shutterButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
 
-        hideSystemUI();
+        hideSystemUi();
         View decorView = getWindow().getDecorView();
         decorView.setOnSystemUiVisibilityChangeListener
                 (new View.OnSystemUiVisibilityChangeListener() {
                     @Override
                     public void onSystemUiVisibilityChange(int visibility) {
-                        hideSystemUI();
+                        hideSystemUi();
                     }
                 });
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
-            hideSystemUI();
+            hideSystemUi();
         }
     }
 
@@ -87,8 +92,50 @@ public final class MainActivity extends NativeActivity {
         }
     }
 
-    private void hideSystemUI() {
-        Log.i(TAG, "hideSysUI");
+    @SuppressWarnings("unused") // Called through JNI
+    public void showAppUi() {
+        Log.i(TAG, "Current thread: " + Thread.currentThread().getName());
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "In Runnable: Current thread: " + Thread.currentThread().getName());
+
+                if (popupWindow != null) {
+                    popupWindow.dismiss();
+                }
+                LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
+                        .getSystemService(LAYOUT_INFLATER_SERVICE);
+                View popupView = layoutInflater.inflate(R.layout.activity_main, null);
+                popupWindow = new PopupWindow(
+                        popupView,
+                        WindowManager.LayoutParams.MATCH_PARENT,
+                        WindowManager.LayoutParams.WRAP_CONTENT);
+
+                RelativeLayout mainLayout = new RelativeLayout(MainActivity.this);
+                ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(
+                        -1, -1);
+                params.setMargins(0, 0, 0, 0);
+                MainActivity.this.setContentView(mainLayout, params);
+
+                // Show our UI over NativeActivity window
+                popupWindow.showAtLocation(mainLayout, Gravity.BOTTOM | Gravity.START, 0, 0);
+                popupWindow.update();
+
+                shutterButton = popupView.findViewById(R.id.shutter_button);
+                shutterButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.i(TAG, "Shutter clicked!");
+                    }
+                });
+                shutterButton.setEnabled(true);
+            }
+        });
+    }
+
+    private void hideSystemUi() {
+        Log.i(TAG, "hideSystemUi");
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY

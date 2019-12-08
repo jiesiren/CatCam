@@ -46,11 +46,40 @@ void CatCam::onAppCmd(struct android_app* app, int32_t cmd) {
     switch (cmd) {
         case APP_CMD_INIT_WINDOW:
             LOGI("CatCam::onAppCmd - APP_CMD_INIT_WINDOW");
-            catCam.requestPermissions();
+            catCam.onAppInitWindow();
+            break;
+        case APP_CMD_TERM_WINDOW:
+            LOGI("CatCam::onAppCmd - APP_CMD_TERM_WINDOW");
+            catCam.onAppTermWindow();
             break;
         default:
             break;
     }
+}
+
+void CatCam::onAppInitWindow() {
+    requestPermissions();
+    showAppUi();
+}
+
+void CatCam::onAppTermWindow() {
+
+}
+
+void CatCam::showAppUi() {
+    LOGI("CatCam::showAppUi");
+    JNIEnv* env;
+    ANativeActivity* activity = app_->activity;
+    activity->vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6);
+
+    activity->vm->AttachCurrentThread(&env, nullptr);
+
+    jobject activityObj = env->NewGlobalRef(activity->clazz);
+    jclass clz = env->GetObjectClass(activityObj);
+    env->CallVoidMethod(activityObj, env->GetMethodID(clz, "showAppUi", "()V"));
+    env->DeleteGlobalRef(activityObj);
+
+    activity->vm->DetachCurrentThread();
 }
 
 void CatCam::requestPermissions() {
