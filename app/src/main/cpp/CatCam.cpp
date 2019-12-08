@@ -5,7 +5,7 @@
 
 extern "C" void android_main(struct android_app* state) {
     while (1) {
-        LOGI("Loopy loop");
+
     }
 }
 
