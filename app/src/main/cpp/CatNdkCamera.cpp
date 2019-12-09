@@ -58,9 +58,6 @@ CatNdkCamera::CatNdkCamera() : cameraManager_(nullptr), cameraDevice_(nullptr) {
         throw std::runtime_error("ACaptureSessionOutputContainer_create");
     }
 
-//    ACaptureSessionOutput *sessionOutput;
-//    ACaptureSessionOutput_create(nullptr, &sessionOutput);
-
     ACameraCaptureSession_stateCallbacks captureSessionCallbacks;
     status = ACameraDevice_createCaptureSession(cameraDevice_, outputContainer_,
                                                 &captureSessionCallbacks, &session);
@@ -72,8 +69,6 @@ CatNdkCamera::CatNdkCamera() : cameraManager_(nullptr), cameraDevice_(nullptr) {
 }
 
 CatNdkCamera::~CatNdkCamera() {
-
-
     ACaptureSessionOutputContainer_free(outputContainer_);
 
     ACameraManager_unregisterAvailabilityCallback(cameraManager_, &availCallbacks_);
