@@ -1,6 +1,6 @@
-#include <camera/NdkCameraMetadata.h>
 #include "CatNdkCamera.h"
 
+#include <camera/NdkCameraMetadata.h>
 #include "CatLog.h"
 
 void cameraDeviceOnDisconnected(void* context, ACameraDevice* device) {
@@ -49,10 +49,35 @@ CatNdkCamera::CatNdkCamera() : cameraManager_(nullptr), cameraDevice_(nullptr) {
         .onCameraUnavailable = cameraManagerOnCameraUnavailable,
     };
     ACameraManager_registerAvailabilityCallback(cameraManager_, &availCallbacks_);
+
+    ACameraCaptureSession* session;
+    status = ACaptureSessionOutputContainer_create(&outputContainer_);
+    if (status != ACAMERA_OK) {
+        LOGE("Could not create capture session output container for camera with ID %s (%d)",
+             cameraId_.c_str(), status);
+        throw std::runtime_error("ACaptureSessionOutputContainer_create");
+    }
+
+//    ACaptureSessionOutput *sessionOutput;
+//    ACaptureSessionOutput_create(nullptr, &sessionOutput);
+
+    ACameraCaptureSession_stateCallbacks captureSessionCallbacks;
+    status = ACameraDevice_createCaptureSession(cameraDevice_, outputContainer_,
+                                                &captureSessionCallbacks, &session);
+    if (status != ACAMERA_OK) {
+        LOGE("Could not create capture session for camera with ID %s (%d)",
+             cameraId_.c_str(), status);
+        throw std::runtime_error("ACameraDevice_createCaptureSession");
+    }
 }
 
 CatNdkCamera::~CatNdkCamera() {
+
+
+    ACaptureSessionOutputContainer_free(outputContainer_);
+
     ACameraManager_unregisterAvailabilityCallback(cameraManager_, &availCallbacks_);
+
     if (cameraDevice_ != nullptr) {
         ACameraDevice_close(cameraDevice_);
     }
@@ -106,7 +131,6 @@ std::string CatNdkCamera::queryCameraId() const {
             cameraId = id;
             break;
         }
-
     }
 
     ACameraManager_deleteCameraIdList(cameraIdList);
