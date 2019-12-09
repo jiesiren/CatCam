@@ -18,4 +18,5 @@ private:
     std::string cameraId_;
     ACameraManager* cameraManager_;
     ACameraDevice* cameraDevice_;
+    ACameraManager_AvailabilityCallbacks availCallbacks_;
 };
