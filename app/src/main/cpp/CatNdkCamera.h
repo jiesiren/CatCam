@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include <camera/NDKCameraManager.h>
 
 class CatNdkCamera {
@@ -11,5 +13,9 @@ public:
     CatNdkCamera& operator=(const CatNdkCamera&) = delete;
 
 private:
+    std::string queryCameraId() const;
+
+    std::string cameraId_;
     ACameraManager* cameraManager_;
+    ACameraDevice* cameraDevice_;
 };

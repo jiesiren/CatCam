@@ -33,6 +33,9 @@ extern "C" void android_main(struct android_app* app) {
 CatCam::CatCam(struct android_app* app) : app_(app) {
     app_->userData = reinterpret_cast<void*>(this);
     app_->onAppCmd = CatCam::onAppCmd;
+
+    camera_ = nullptr;
+    reader_ = nullptr;
 }
 
 CatCam::~CatCam() {
